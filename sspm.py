@@ -20,12 +20,20 @@ class HttpGetHandler(BaseHTTPRequestHandler):
 
 
     def read_file_structure(self, path):
-        sys_path = f'./static{path}' if path != '/' else './static/index.html'  # can be security breaches here
+
+        available_pages = {
+            'vault': './vault',
+            'login': './login'
+        }
+
+        original_path_file, original_path_extension = os.path.splitext(path)
+        # sys_path = f'./static{path}' if original_path_extension else './static/index.html'  # can be security breaches here
+        sys_path = f'./static{path}' if original_path_extension else f'./static{original_path_file}/index.html'  # can be security breaches here
+        filename, extension = os.path.splitext(sys_path)
         if not os.path.isfile(sys_path):
             return False
-        filename, extension = os.path.splitext(sys_path)
         with open(sys_path, 'rb') as file_to_send:
-            if extension in ('.ico', '.jpg', '.png'):
+            if extension in ('.ico', '.jpg', '.png', '.svg'):
                 data_from_file = (file_to_send.read(), 'file', extension)
             elif extension in ('.html', '.js', '.css', '.json', '.txt'):
                 data_from_file = (file_to_send.read(), 'text', extension)
@@ -52,7 +60,10 @@ class HttpGetHandler(BaseHTTPRequestHandler):
             self.send_response(404)
             self.send_header("Content-type", "text/html")
             self.end_headers()
-            self.wfile.write(b'<h1>404</h1>')
+            self.wfile.write(b'<h1>404</h1><h2><a href="/">go back</a></h2>')
+
+    def do_POST(self):
+        self.send_response(200)
 
 
 def run(server_class=HTTPServer, handler_class=HttpGetHandler):

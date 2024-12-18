@@ -2,14 +2,34 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+	<meta name="viewport" content="width=device-width, user-scalable=no">
 	<link rel="stylesheet" href="sspm_style.css">	
 	<title>SSPM</title>
 </head>
 <body>
-	<p id="server_randnum">server num goes here: %(randnum)s</p>
-	<p>js num goes here: <a id="js_randnum"></a></p>
-	<img src="sophie.jpg" id="sophie">
+
+	<div id="logbl">
+		<h1><a id="logo" href="/" accesskey="n">SSPM</a></h1>
+		<form id="form_elem" action="/" method="post">
+			<input id="login" class="input_form" autofocus="" placeholder="Login" type="login" name="login">
+			<input id="pass" class="input_form" placeholder="Password" type="password" name="pass">
+		</form>
+		<div class="button_container">
+			<button class="button_login" id="unlock_button" form="form_elem" type="submit">Unlock</button>
+			<button class="button_login" href="https://google.com">Register</button>
+		</div>
+	</div>
+	<!-- <p id="server_randnum">server num goes here: %(randnum)s</p> -->
+	<!-- <p>js num goes here: <a id="js_randnum"></a></p> -->
+	<!-- <img src="sophie.jpg" id="sophie"> -->
+
+	<div id="bottom_side" align="bottom">
+		<div id="indbs">
+			<a class="b-menu" href="about">About</a> 
+			<a class="b-menu" href="//en.wikipedia.org/wiki/2025" target="_blank">2025</a>
+		</div>
+	</div>
 
 	<script src="sspm_script.js" type="text/javascript" onload></script>
 </body>
