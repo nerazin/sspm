@@ -4,7 +4,40 @@ from random import randint
 import mimetypes
 import os
 import sspm_config
+import sqlite3
 from functools import cached_property
+import logging
+import config
+import urllib.parse
+import json
+import time
+
+
+class DBWorker:
+
+    def __init__(self, database):
+        self.connection = sqlite3.connect(database)
+        self.cursor = self.connection.cursor()
+
+    def create_tables(self):
+        request_str = '''
+        CREATE TABLE IF NOT EXISTS auth_user (
+            userid INTEGER PRIMARY KEY AUTOINCREMENT,
+            login TEXT,
+            password TEXT
+        );
+
+        '''
+        self.cursor.execute(request_str)
+        self.connection.commit()
+
+    def chech_user_login_and_password(self, login, password):
+        with self.connection:
+            self.cursor.execute('SELECT auth_user WHERE login = {0} AND password = {1}'.format(login, password))
+
+    def __del__(self):
+        self.connection.close()
+        logging.info('DB is closed!')
 
 
 class HttpGetHandler(BaseHTTPRequestHandler):
@@ -63,12 +96,27 @@ class HttpGetHandler(BaseHTTPRequestHandler):
             self.wfile.write(b'<h1>404</h1><h2><a href="/">go back</a></h2>')
 
     def do_POST(self):
-        self.send_response(200)
+        if self.path == '/checklogin':
+            content_lenght = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_lenght)
+            decoded_data = post_data.decode('utf-8')
+            jsoned_data = json.loads(decoded_data)
+
+            if jsoned_data['unlock_pass'] == '123':
+                self.send_response(200, 'Logged in')
+                self.end_headers()
+            else:
+                self.send_response(401, 'Wrong creds')
+                self.end_headers()
+            # self.headers['login']
+            # self.headers['password']
+            # self.wfile.write()
 
 
 def run(server_class=HTTPServer, handler_class=HttpGetHandler):
     server_address = ('', 8000)
     httpd = server_class(server_address, handler_class)
+    logging.info('Init server...')
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
@@ -76,4 +124,7 @@ def run(server_class=HTTPServer, handler_class=HttpGetHandler):
 
 
 if __name__ == '__main__':
+    db = DBWorker(config.DB_NAME)
+    db.create_tables()
+
     run()

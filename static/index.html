@@ -11,14 +11,15 @@
 
 	<div id="logbl">
 		<h1><a id="logo" href="/" accesskey="n">SSPM</a></h1>
-		<form id="form_elem" action="/" method="post">
-			<input id="login" class="input_form" autofocus="" placeholder="Login" type="login" name="login">
-			<input id="pass" class="input_form" placeholder="Password" type="password" name="pass">
+		<form id="form_elem">
+			<input id="login" class="input_form" autofocus="" placeholder="Login" type="login" name="unlock_login" required>
+			<input id="pass" class="input_form" placeholder="Password" type="password" name="unlock_pass" required>
 		</form>
 		<div class="button_container">
 			<button class="button_login" id="unlock_button" form="form_elem" type="submit">Unlock</button>
 			<button class="button_login" href="https://google.com">Register</button>
 		</div>
+		<p id="confirmation_p"></p>
 	</div>
 	<!-- <p id="server_randnum">server num goes here: %(randnum)s</p> -->
 	<!-- <p>js num goes here: <a id="js_randnum"></a></p> -->

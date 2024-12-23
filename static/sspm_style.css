@@ -100,6 +100,11 @@ body {
 	text-decoration: none;
 }
 
+#confirmation_p {
+	color: red;
+}
+
+
 @media screen and (max-width: 980px) {
 	#logo {
 		font-size: 60px;
@@ -133,6 +138,10 @@ body {
 
 	#logo {
 		margin-bottom: 18px;
+	}
+
+	#confirmation_p {
+		font-size: 24px;
 	}
 
 }
