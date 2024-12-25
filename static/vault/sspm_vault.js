@@ -8,6 +8,12 @@ const parseCookie = str =>
     }, {});
 
 
+function clearCookieAndLogOut() {
+    document.cookie = name+'logged_in=0';
+    window.location.replace("/");
+}
+
+
 var allow_p = document.getElementById("allow_p");
 
 try {
