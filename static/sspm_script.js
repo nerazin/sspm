@@ -60,17 +60,20 @@ async function sendData() {
 
 
         if (response.ok) {
+            document.cookie = "logged_in=1";
             confirm_p.style.color = "green";
-            confirm_p.innerHTML = "All good! Redirecting";
+            confirm_p.innerHTML = "All good! Redirecting...";
             setTimeout(function() {
                 window.location.replace("/vault");
-            }, 1000);
-        } else {
+            }, 500);
+        }
+        else {
             console.error("Login failed:", response.status, response.statusText);
             confirm_p.style.color = "red";
             confirm_p.innerHTML = "Incorrect login or pass";
         }
-    } catch (e) {
+    }
+    catch (e) {
         console.error("Error during fetch:", e);
     }
 }
