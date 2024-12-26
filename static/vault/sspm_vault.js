@@ -40,25 +40,45 @@ else {
     prohibited_page();
 }
 
+async function fetchCredentials(token) {
+    try {
+        const response = await fetch('/get_creds', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ token }),
+        });
 
-const dataFromServer = [
-    {name: 'John Doe', login: 'User1', password: 'password1'},
-    {name: 'Jane Smith', login: 'User2', password: 'password2'},
-    {name: 'Alice Johnson', login: 'User3', password: 'password3'},
-];
+        if (!response.ok) {
+            throw new Error(`Error: ${response.statusText}`);
+        }
 
-const listContainer = document.getElementById('loginPasswordList');
+        const data = await response.json();
 
-dataFromServer.forEach(({ name, login, password }) => {
-    const item = document.createElement('div');
-    item.className = 'list_item';
-    item.innerHTML = `
-        <span class="name">${name}</span>
-        <div class="login-password">
-            <span class="login">${login}</span>
-            <span class="password">${password}</span>
-        </div>
-    `;
-    listContainer.appendChild(item);
-});
+        populateList(data);
+    } catch (error) {
+        console.error('Failed to fetch credentials:', error);
+    }
+}
 
+function populateList(data) {
+    const listContainer = document.getElementById('loginPasswordList');
+    listContainer.innerHTML = '';
+
+    data.forEach(({name, login, password}) => {
+        const item = document.createElement('div');
+        item.className = 'list_item';
+        item.innerHTML = `
+            <span class="name">${name}</span>
+            <div class="login-password">
+                <span class="login">${login}</span>
+                <span class="password">${password}</span>
+            </div>
+        `;
+        listContainer.appendChild(item);
+    });
+}
+
+const userToken = '456';
+fetchCredentials(userToken);

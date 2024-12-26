@@ -112,6 +112,40 @@ class HttpGetHandler(BaseHTTPRequestHandler):
             # self.headers['login']
             # self.headers['password']
             # self.wfile.write()
+        if self.path == '/get_creds':
+            content_lenght = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_lenght)
+            decoded_data = post_data.decode('utf-8')
+            jsoned_data = json.loads(decoded_data)
+
+
+            if jsoned_data['token'] == '123':
+                data_to_send = [
+                    {"name": "John Doe", "login": "User1", "password": "password1"},
+                    {"name": "Jane Smith", "login": "User2", "password": "password2"}
+                ]
+                jsoned_data_to_send = json.dumps(data_to_send)
+                send_content_lenght = len(jsoned_data_to_send)
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.send_header('Content-Length', send_content_lenght)
+                self.end_headers()
+                self.wfile.write(jsoned_data_to_send.encode())
+            elif jsoned_data['token'] == '456':
+                data_to_send = [
+                    {"name": "jjjj", "login": "User66", "password": "pass123"},
+                    {"name": "momomo", "login": "User77", "password": "pass1234"}
+                ]
+                jsoned_data_to_send = json.dumps(data_to_send)
+                send_content_lenght = len(jsoned_data_to_send)
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.send_header('Content-Length', send_content_lenght)
+                self.end_headers()
+                self.wfile.write(jsoned_data_to_send.encode())
+            else:
+                self.send_response(401)
+                self.end_headers()
 
 
 def run(server_class=HTTPServer, handler_class=HttpGetHandler):
