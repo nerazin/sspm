@@ -39,3 +39,26 @@ if (parsed_cookie) {
 else {
     prohibited_page();
 }
+
+
+const dataFromServer = [
+    {name: 'John Doe', login: 'User1', password: 'password1'},
+    {name: 'Jane Smith', login: 'User2', password: 'password2'},
+    {name: 'Alice Johnson', login: 'User3', password: 'password3'},
+];
+
+const listContainer = document.getElementById('loginPasswordList');
+
+dataFromServer.forEach(({ name, login, password }) => {
+    const item = document.createElement('div');
+    item.className = 'list_item';
+    item.innerHTML = `
+        <span class="name">${name}</span>
+        <div class="login-password">
+            <span class="login">${login}</span>
+            <span class="password">${password}</span>
+        </div>
+    `;
+    listContainer.appendChild(item);
+});
+

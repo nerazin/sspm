@@ -74,7 +74,7 @@ body {
 
 .list_item {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column; /* Stack name above login-password */
     padding: 8px 10px;
     border-bottom: 1px solid #ddd; /* Thin grey delimiter */
 }
@@ -83,13 +83,15 @@ body {
     border-bottom: none; /* No delimiter for last item */
 }
 
-.login {
+.name {
     font-weight: bold;
     font-family: 'Lato', sans-serif;
     color: #333;
+    margin-bottom: 4px; /* Space below the name */
 }
 
-.password {
-    font-family: 'Lato', sans-serif;
-    color: #555;
+.login-password {
+    display: flex;
+    justify-content: space-between;
 }
+
