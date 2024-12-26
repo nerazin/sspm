@@ -13,9 +13,6 @@ function clearCookieAndLogOut() {
     window.location.replace("/");
 }
 
-
-var allow_p = document.getElementById("allow_p");
-
 try {
     var parsed_cookie = parseCookie(document.cookie);    
 }
@@ -23,17 +20,22 @@ catch (e) {
     parsed_cookie = false;
 }
 
+function prohibited_page() {
+    var newContent="<h1>Access Denied. Redirecting to the login page...</h1>";
+    document.open();
+    document.write(newContent);
+    document.close();
+
+    setTimeout(function() {
+        window.location.replace("/");
+    }, 2000);
+}
+
 if (parsed_cookie) {
-    if (parsed_cookie["logged_in"] == 1) {
-        allow_p.style.color = "Green";
-        allow_p.innerHTML = "You are allowed!";
-    }
-    else {
-        allow_p.style.color = "red";
-        allow_p.innerHTML = "You are not allowed!";
+    if (parsed_cookie["logged_in"] != 1) {
+        prohibited_page();
     }
 }
 else {
-    allow_p.style.color = "red";
-    allow_p.innerHTML = "You are not allowed!";
+    prohibited_page();
 }
