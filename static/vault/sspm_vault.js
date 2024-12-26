@@ -9,7 +9,7 @@ const parseCookie = str =>
 
 
 function clearCookieAndLogOut() {
-    document.cookie = name+'logged_in=0';
+    document.cookie = "logged_in=0";
     window.location.replace("/");
 }
 
