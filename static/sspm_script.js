@@ -73,6 +73,7 @@ async function sendData(targetEndpoint) {
                 }, 500);
             }
             else if (targetEndpoint === "/register") {
+                document.cookie = `userToken=${responseJson["userid"]}`;
                 confirm_p.style.color = "green";
                 confirm_p.innerHTML = "Registration successful! Redirecting...";   
                 setTimeout(function() {
