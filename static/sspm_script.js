@@ -37,8 +37,11 @@
 
 
 const form = document.querySelector("#form_elem");
+const unlockButton = document.getElementById('unlock_button');
+const registerButton = document.getElementById('register_button');
+// let targetEndpoint = "/checklogin";
 
-async function sendData() {
+async function sendData(targetEndpoint) {
     const formData = new FormData(form);
     const jsonObject = {};
 
@@ -52,34 +55,54 @@ async function sendData() {
 
 
     try {
-        const response = await fetch("/checklogin", {
+        const response = await fetch(targetEndpoint, {
             method: "POST",
             body: JSON.stringify(jsonObject),
         });
-        var checklogin_response = await response.json();
-        console.log(checklogin_response);
+        var responseJson = await response.json();
+        console.log(responseJson);
 
 
         if (response.ok) {
-            document.cookie = `userToken=${checklogin_response["userid"]}`;
-            confirm_p.style.color = "green";
-            confirm_p.innerHTML = "All good! Redirecting...";
-            setTimeout(function() {
-                window.location.replace("/vault");
-            }, 500);
+            if (targetEndpoint === '/checklogin') {
+                document.cookie = `userToken=${responseJson["userid"]}`;
+                confirm_p.style.color = "green";
+                confirm_p.innerHTML = "All good! Redirecting...";
+                setTimeout(function() {
+                    window.location.replace("/vault");
+                }, 500);
+            }
+            else if (targetEndpoint === "/register") {
+                confirm_p.style.color = "green";
+                confirm_p.innerHTML = "Registration successful! Redirecting...";   
+                setTimeout(function() {
+                    window.location.replace("/vault");
+                }, 500);
+            }
         }
-        else {
+        else if (response.status === 401) {
             console.error("Login failed:", response.status, response.statusText);
             confirm_p.style.color = "red";
             confirm_p.innerHTML = "Incorrect login or pass";
         }
+        else {
+            console.error("Request failed:", response.status, response.statusText);
+            confirm_p.style.color = "red";
+            confirm_p.innerHTML = responseJson.message || "An error occurred.";
+        }
     }
     catch (e) {
         console.error("Error during fetch:", e);
+        confirm_p.style.color = "red";
+        confirm_p.innerHTML = "An unexpected error occurred.";
     }
 }
 
+
 form.addEventListener("submit", (event) => {
     event.preventDefault();
-    sendData();
+    const targetEndpoint = event.submitter.id === "unlock_button"
+        ? "/checklogin"
+        : "/register";
+    sendData(targetEndpoint);
 });

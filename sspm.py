@@ -41,7 +41,7 @@ class DBWorker:
         self.cursor.execute(sspm_creds_creation)
         self.connection.commit()
 
-    def chech_user_login_and_password(self, login, password):
+    def check_user_login_and_password(self, login, password):
         result = self.cursor.execute('''
         SELECT userid FROM auth_user WHERE login = ? AND password = ?;
         ''', (login, password)).fetchall()
@@ -67,6 +67,13 @@ class DBWorker:
                     "password": password
                 })
             return transformed_data
+
+    def add_new_user(self, login, password):
+        self.cursor.execute('''
+        INSERT INTO auth_user (login, password) VALUES (?, ?);
+        ''', (login, password))
+        self.connection.commit()
+
 
     def __del__(self):
         self.connection.close()
@@ -136,7 +143,7 @@ class HttpGetHandler(BaseHTTPRequestHandler):
             decoded_data = post_data.decode('utf-8')
             jsoned_data = json.loads(decoded_data)
 
-            userid = db.chech_user_login_and_password(jsoned_data['unlock_login'],
+            userid = db.check_user_login_and_password(jsoned_data['unlock_login'],
                                                       jsoned_data['unlock_pass'])
 
             if userid:
@@ -147,11 +154,34 @@ class HttpGetHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(userid_json.encode())
             else:
+                wrong_json = json.dumps({"userid": ""})
                 self.send_response(401, 'Wrong creds')
+                self.send_header('Content-type', 'application/json')
+                self.send_header('Content-Length', len(wrong_json))
                 self.end_headers()
+                self.wfile.write(wrong_json.encode())
             # self.headers['login']
             # self.headers['password']
             # self.wfile.write()
+
+        if self.path == '/register':
+            content_lenght = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_lenght)
+            decoded_data = post_data.decode('utf-8')
+            jsoned_data = json.loads(decoded_data)
+
+            db.add_new_user(jsoned_data['unlock_login'], jsoned_data['unlock_pass'])
+
+            new_userid = db.check_user_login_and_password(jsoned_data['unlock_login'],
+                                                          jsoned_data['unlock_pass'])
+
+            new_userid_json = json.dumps({"userid": str(new_userid)})
+            self.send_response(200, 'Logged in')
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Content-Length', len(new_userid_json))
+            self.end_headers()
+            self.wfile.write(new_userid_json.encode())
+
         if self.path == '/get_creds':
             content_lenght = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_lenght)

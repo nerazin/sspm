@@ -15,16 +15,15 @@
 		<form id="form_elem">
 			<input id="login" class="input_form" autofocus="" placeholder="Login" type="login" name="unlock_login" required>
 			<input id="pass" class="input_form" placeholder="Password" type="password" name="unlock_pass" required>
+
+			<!-- <input type="hidden" name="action_type" id="action_type" value="unlock"> -->
 		</form>
 		<div class="button_container">
-			<button class="button_login" id="unlock_button" form="form_elem" type="submit">Unlock</button>
-			<button class="button_login" href="https://google.com">Register</button>
+			<button class="button_login" id="unlock_button" form="form_elem" type="submit" formaction="/checklogin">Unlock</button>
+			<button class="button_login" id="register_button" form="form_elem" type="submit" formaction="/register">Register</button>
 		</div>
 		<p id="confirmation_p"></p>
 	</div>
-	<!-- <p id="server_randnum">server num goes here: %(randnum)s</p> -->
-	<!-- <p>js num goes here: <a id="js_randnum"></a></p> -->
-	<!-- <img src="sophie.jpg" id="sophie"> -->
 
 	<div id="bottom_side" align="bottom">
 		<div id="indbs">
@@ -34,5 +33,15 @@
 	</div>
 
 	<script src="sspm_script.js" type="text/javascript" onload></script>
+	<script>
+		// Set up event listeners to modify the hidden input value based on the button clicked
+		document.getElementById('unlock_button').addEventListener('click', function() {
+			document.getElementById('action_type').value = 'unlock';
+		});
+
+		document.getElementById('register_button').addEventListener('click', function() {
+			document.getElementById('action_type').value = 'register';
+		});
+	</script>
 </body>
 </html>
