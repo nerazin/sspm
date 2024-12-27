@@ -9,7 +9,7 @@ const parseCookie = str =>
 
 
 function clearCookieAndLogOut() {
-    document.cookie = "logged_in=0";
+    document.cookie = "userToken=0";
     window.location.replace("/");
 }
 
@@ -32,7 +32,7 @@ function prohibited_page() {
 }
 
 if (parsed_cookie) {
-    if (parsed_cookie["logged_in"] != 1) {
+    if (parsed_cookie["userToken"] == 0) {
         prohibited_page();
     }
 }
@@ -40,14 +40,14 @@ else {
     prohibited_page();
 }
 
-async function fetchCredentials(token) {
+async function fetchCredentials(userToken) {
     try {
         const response = await fetch('/get_creds', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ token }),
+            body: JSON.stringify({userToken}),
         });
 
         if (!response.ok) {
@@ -80,5 +80,5 @@ function populateList(data) {
     });
 }
 
-const userToken = '456';
+const userToken = parseCookie(document.cookie)['userToken'];
 fetchCredentials(userToken);

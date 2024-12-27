@@ -56,11 +56,12 @@ async function sendData() {
             method: "POST",
             body: JSON.stringify(jsonObject),
         });
-        console.log(response);
+        var checklogin_response = await response.json();
+        console.log(checklogin_response);
 
 
         if (response.ok) {
-            document.cookie = "logged_in=1";
+            document.cookie = `userToken=${checklogin_response["userid"]}`;
             confirm_p.style.color = "green";
             confirm_p.innerHTML = "All good! Redirecting...";
             setTimeout(function() {

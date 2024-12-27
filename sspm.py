@@ -21,20 +21,52 @@ class DBWorker:
         self.cursor = self.connection.cursor()
 
     def create_tables(self):
-        request_str = '''
+        auth_user_creation = '''
         CREATE TABLE IF NOT EXISTS auth_user (
             userid INTEGER PRIMARY KEY AUTOINCREMENT,
             login TEXT,
             password TEXT
         );
-
         '''
-        self.cursor.execute(request_str)
+        sspm_creds_creation = '''
+        CREATE TABLE IF NOT EXISTS sspm_creds (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            userid INTEGER,
+            creds_name TEXT,
+            creds_login TEXT,
+            creds_password TEXT
+        );
+        '''
+        self.cursor.execute(auth_user_creation)
+        self.cursor.execute(sspm_creds_creation)
         self.connection.commit()
 
     def chech_user_login_and_password(self, login, password):
-        with self.connection:
-            self.cursor.execute('SELECT auth_user WHERE login = {0} AND password = {1}'.format(login, password))
+        result = self.cursor.execute('''
+        SELECT userid FROM auth_user WHERE login = ? AND password = ?;
+        ''', (login, password)).fetchall()
+        if not len(result):
+            return None
+        else:
+            return result[0][0]
+
+    def get_sspm_creds_by_userid(self, userid):
+        result = self.cursor.execute('''
+        SELECT creds_name, creds_login, creds_password from sspm_creds where userid = ?
+        ''', (userid,)).fetchall()
+
+        if not len(result):
+            return None
+        else:
+            transformed_data = []
+    
+            for idx, (name, login, password) in enumerate(result, start=1):
+                transformed_data.append({
+                    "name": name,
+                    "login": login,
+                    "password": password
+                })
+            return transformed_data
 
     def __del__(self):
         self.connection.close()
@@ -96,6 +128,7 @@ class HttpGetHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b'<h1>404</h1><h2><a href="/">go back</a></h2>')
 
+
     def do_POST(self):
         if self.path == '/checklogin':
             content_lenght = int(self.headers['Content-Length'])
@@ -103,9 +136,16 @@ class HttpGetHandler(BaseHTTPRequestHandler):
             decoded_data = post_data.decode('utf-8')
             jsoned_data = json.loads(decoded_data)
 
-            if jsoned_data['unlock_pass'] == '123':
+            userid = db.chech_user_login_and_password(jsoned_data['unlock_login'],
+                                                      jsoned_data['unlock_pass'])
+
+            if userid:
+                userid_json = json.dumps({"userid": str(userid)})
                 self.send_response(200, 'Logged in')
+                self.send_header('Content-type', 'application/json')
+                self.send_header('Content-Length', len(userid_json))
                 self.end_headers()
+                self.wfile.write(userid_json.encode())
             else:
                 self.send_response(401, 'Wrong creds')
                 self.end_headers()
@@ -118,34 +158,14 @@ class HttpGetHandler(BaseHTTPRequestHandler):
             decoded_data = post_data.decode('utf-8')
             jsoned_data = json.loads(decoded_data)
 
-
-            if jsoned_data['token'] == '123':
-                data_to_send = [
-                    {"name": "John Doe", "login": "User1", "password": "password1"},
-                    {"name": "Jane Smith", "login": "User2", "password": "password2"}
-                ]
-                jsoned_data_to_send = json.dumps(data_to_send)
-                send_content_lenght = len(jsoned_data_to_send)
-                self.send_response(200)
-                self.send_header('Content-type', 'application/json')
-                self.send_header('Content-Length', send_content_lenght)
-                self.end_headers()
-                self.wfile.write(jsoned_data_to_send.encode())
-            elif jsoned_data['token'] == '456':
-                data_to_send = [
-                    {"name": "jjjj", "login": "User66", "password": "pass123"},
-                    {"name": "momomo", "login": "User77", "password": "pass1234"}
-                ]
-                jsoned_data_to_send = json.dumps(data_to_send)
-                send_content_lenght = len(jsoned_data_to_send)
-                self.send_response(200)
-                self.send_header('Content-type', 'application/json')
-                self.send_header('Content-Length', send_content_lenght)
-                self.end_headers()
-                self.wfile.write(jsoned_data_to_send.encode())
-            else:
-                self.send_response(401)
-                self.end_headers()
+            data_to_send = db.get_sspm_creds_by_userid(jsoned_data['userToken'])
+            json_string_to_send = json.dumps(data_to_send)
+            send_content_lenght = len(json_string_to_send)
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Content-Length', send_content_lenght)
+            self.end_headers()
+            self.wfile.write(json_string_to_send.encode())
 
 
 def run(server_class=HTTPServer, handler_class=HttpGetHandler):
