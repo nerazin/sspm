@@ -1,5 +1,3 @@
-from http.server import BaseHTTPRequestHandler
-from http.server import HTTPServer
 from random import randint
 import mimetypes
 import os
@@ -72,6 +70,12 @@ class DBWorker:
         self.cursor.execute('''
         INSERT INTO auth_user (login, password) VALUES (?, ?);
         ''', (login, password))
+        self.connection.commit()
+
+    def add_account(self, userid, name, login, password):
+        self.cursor.execute('''
+        INSERT INTO sspm_creds (userid, creds_name, creds_login, creds_password) VALUES (?, ?, ?, ?);
+        ''', (userid, name, login, password))
         self.connection.commit()
 
 
@@ -181,6 +185,22 @@ class HttpGetHandler(BaseHTTPRequestHandler):
             self.send_header('Content-Length', len(new_userid_json))
             self.end_headers()
             self.wfile.write(new_userid_json.encode())
+
+        if self.path == '/add_account':
+            content_lenght = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_lenght)
+            decoded_data = post_data.decode('utf-8')
+            jsoned_data = json.loads(decoded_data)
+
+            db.add_account(jsoned_data['userid'], jsoned_data['name'], jsoned_data['login'], jsoned_data['password'])
+
+            self.send_response(200, 'Logged in')
+            self.send_header('Content-type', 'application/json')
+            json_string_to_send = json.dumps({"ok": "1"})
+            send_content_lenght = len(json_string_to_send)
+            self.send_header('Content-Length', len(json_string_to_send))
+            self.end_headers()
+            self.wfile.write(json_string_to_send.encode())
 
         if self.path == '/get_creds':
             content_lenght = int(self.headers['Content-Length'])

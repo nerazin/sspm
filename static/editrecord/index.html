@@ -6,6 +6,14 @@
 	<title>SSPM - Add/Edit Record</title>
 </head>
 <body>
+	<form id="form_elem">
+		<input id="name" class="input_form" autofocus="" placeholder="Accont Name" type="name" name="name" required>
+		<input id="login" class="input_form" placeholder="Login" type="login" name="login" required>
+		<input id="password" class="input_form" placeholder="Password" type="password" name="password" required>
 
+	</form>
+	<button class="button_login" id="submit_button" form="form_elem" type="submit">Add account</button>
+	<p id="confirmation_p" style="color: black;"></p>
+	<script src="/editrecord/sspm_editrecord.js" type="text/javascript" onload></script>
 </body>
 </html>
